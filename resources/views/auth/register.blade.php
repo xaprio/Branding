@@ -2,17 +2,16 @@
 
 @section('content')
 
-
-<!doctype html>
 <html lang="en">
    <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
       <title>Xapads | Branding</title>
       <!-- Favicon -->
-      <link rel="shortcut icon" href="assets/images/favicon.ico" />
-      <link rel="stylesheet" href="assets/css/backend-plugin.min.css">
-      <link rel="stylesheet" href="assets/css/backend.css?v=1.0.01">
+      <link rel="shortcut icon" href="{{asset('public/assets/images/favicon.ico')}}" />
+      <link rel="stylesheet" href="{{asset('public/assets/css/backend-plugin.min.css')}}">
+      <link rel="stylesheet" href="{{asset('public/assets/css/backend.css?v=1.0.01')}}">
+      <link rel="stylesheet" href="{{asset('public/assets/style.css')}}" />
    </head>
    <body >
    
@@ -26,31 +25,26 @@
       <div class="wrapper">
         <div class="d-flex flex-column flex-root">
             <div class="login login-1 d-flex flex-column flex-lg-row flex-column-fluid bg-white">
-               <div class=" login-aside d-flex flex-column flex-row-auto bg-annimation">
-                     <div class="logo text-center mt-c-3"><img src="assets/images/logo-w.png">
-                     <h5 class="text-center mt-3 text-white">BESPOKE DISPLAY SOLUTIONS</h5>
-                     </div>
-                     <div class="bottom-aside"><img src="assets/images/login-screen.png"></div>
-                        
-                        <ul class="bg-animation-box">
-                            <li class="circle-box"></li>
-                            <li class="corners-box-20"></li>
-                            <li class="circle-box"></li>
-                            <li class="corners-box-20"></li>
-                            <li></li>
-                            <li class="corners-box-35"></li>
-                            <li class="circle-box"></li>
-                            <li></li>   
-                        </ul>
-                     
-               </div>
+               @include('master.sidebar');
                <div class="login-content flex-row-fluid d-flex flex-column justify-content-center position-relative overflow-hidden p-7 mx-auto">
                    <div class="row align-items-center justify-content-center h-100">
                   <div class="col-md-12">
-                  
+                            <!--   @if(Session::has('message'))
+                               <div class="alert alert-success">
+                                <h4>{{ Session::get('message')}}</h4>
+                              </div>
+                              @endif
+
+                               @if(Session::has('failure'))
+                               <div class="alert alert-danger">
+                                <h4>{{ Session::get('failure')}}</h4>
+                              </div>
+                              @endif -->
+
+
                             <h3 class="text-left  mb-1 mt-3">Create your Account</h3>
                           <p class="mb-0 text-left mb-5 text-light font-bold">Enter your details to create your account</a></p>
-                             <form class="needs-validation" novalidate method="POST" action="{{ route('register') }}">
+                             <form class="needs-validation" novalidate method="POST" action="{{URL::to('/signup')}}">
 
                                  @csrf
                            
@@ -63,18 +57,42 @@
                                                     </svg>                                         
                                                </span>
                                             </div>
-                                            <input class="form-control" type="name" name="name" placeholder="Name" required>
+                                            <input class="form-control" type="name" name="company" value="{{ old('company') }}" placeholder="Company" required >
 
-                                             @error('name')
+                                             @error('company')
                                     <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
+                                        <strong style="color: red">{{ $message }}</strong>
                                     </span>
                                 @enderror
 
-                                
+
+                                            <div class="invalid-feedback">Company is required</div>
+                                         </div>     
+                                </div> 
+
+                                          <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                               <span class="input-group-text">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                                    </svg>                                         
+                                               </span>
+                                            </div>
+                                            <input class="form-control @error('name') is-invalid @enderror" type="name" name="name" value="{{ old('name') }}" placeholder="Name" required autocomplete="name" autofocus>
+
+                                             @error('name')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong style="color: red">{{ $message }}</strong>
+                                    </span>
+                                @enderror
+
+
                                             <div class="invalid-feedback">Name is required </div>
                                          </div>     
                                          </div> 
+
+
 
 
                             
@@ -87,7 +105,12 @@
                                                     </svg>                                         
                                                </span>
                                             </div>
-                                            <input class="form-control" type="email" name="email" placeholder="Email" required>
+                                            <input class="form-control" type="email" name="email" value="{{ old('email') }}" placeholder="Email" required>
+                                             @error('email')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong style="color: red">{{ $message }}</strong>
+                                    </span>
+                                @enderror
                                             <div class="invalid-feedback">Email is required </div>
                                          </div>     
                                          </div>     
@@ -101,9 +124,19 @@
                                                     </svg>
                                                 </span>
                                             </div>
-                                    <input class="form-control" type="password" name="password" placeholder="Password" required="">
+                                    <input class="form-control" type="password" name="password" value="{{ old('password') }}" placeholder="Password" required="" >
+                                    <div class="clearfix"></div>
+                                 
+                               
                                     <div class="invalid-feedback">Password is required </div>
-                                    </div></div>
+                                    </div>
+                                    @if($errors->has('password'))
+                                      <span class="alert alert-error" role="alert">
+                                        <strong style="color: red;">{{ $errors->first('password') }}</strong>
+                                      </span>
+                                    
+                                    @endif
+                                    </div>
                             
                                  <div class="form-group">
                                            <div class="input-group">
@@ -114,13 +147,23 @@
                                                     </svg>
                                                 </span>
                                             </div>
-                                    <input class="form-control" type="password" name="password_confirmation" placeholder="Confirm Password" required>
+                                    <input class="form-control" id="password-confirm" type="password" name="password_confirmation" placeholder="Confirm Password" required>
+
+                                    
+                                    <span class="alert alert-error" role="alert">
+                                        <strong style="color: red;">{{ $errors->first('password_confirmation') }}</strong>
+                                      </span>
+                                    
+                                 
+
+
                                     <div class="invalid-feedback">Confirm Password is required </div>
-                                    </div></div>
+                                    </div>
+                                </div>
                             
                                    <div class="form-check form-check-inline">
                                        <div class="custom-control custom-checkbox custom-control-inline mb-3">
-                                          <input type="checkbox" class="custom-control-input m-0" id="invalidCheck" required>
+                                          <input type="checkbox" name="term" class="custom-control-input m-0" id="invalidCheck" required>
                                           <label class="custom-control-label pl-2" for="invalidCheck">I agree to the <a href="terms-of-service.html">Terms of Service </a> and <a href="privacy-policy.html">Privacy Policy</a></label>
                                        </div>
                                         <div class="invalid-feedback"> You must agree before submitting. </div>
@@ -131,7 +174,7 @@
                          
                           <div class="form-group">
                           <button type="submit" class="btn-block btn btn-primary mt-2">Create Account</button>
-                                <p class="mt-1 text-center">Do you have an account? <a href="{{ route('login') }}">Sign In</a></p>
+                                <p class="mt-1 text-center">Do you have an account? <a href="{{URL::to('/login')}}">Sign In</a></p>
                                  </div>
                            
                         </form>
@@ -149,102 +192,54 @@
       
       </div>
       <!-- Backend Bundle JavaScript -->
-      <script src="assets/js/backend-bundle.min.js"></script>
+      <script src="{{asset('public/assets/js/backend-bundle.min.js')}}"></script>
       <!-- Chart Custom JavaScript -->
-      <script src="assets/js/customizer.js"></script>
-      <script src="assets/js/sidebar.js"></script>
+      <script src="{{asset('public/assets/js/customizer.js')}}"></script>
+      <script src="{{asset('public/assets/js/sidebar.js')}}"></script>
       <!-- Flextree Javascript-->
-      <script src="assets/js/flex-tree.min.js"></script>
-      <script src="assets/js/tree.js"></script>
+      <script src="{{asset('public/assets/js/flex-tree.min.js')}}"></script>
+      <script src="{{asset('public/assets/js/tree.js')}}"></script>
       <!-- Table Treeview JavaScript -->
-      <script src="assets/js/table-treeview.js"></script>
+      <script src="{{asset('public/assets/js/table-treeview.js')}}"></script>
       <!-- SweetAlert JavaScript -->
-      <script src="assets/js/sweetalert.js"></script>
+      <script src="{{asset('public/assets/js/sweetalert.js')}}"></script>
       <!-- Vectoe Map JavaScript -->
-      <script src="assets/js/vector-map-custom.js"></script>
+      <script src="{{asset('public/assets/js/vector-map-custom.js')}}"></script>
       <!-- Chart Custom JavaScript -->
-      <script src="assets/js/chart-custom.js"></script>
-      <script src="assets/js/charts/01.js"></script>
-      <script src="assets/js/charts/02.js"></script>
+      <script src="{{asset('public/assets/js/chart-custom.js')}}"></script>
+      <script src="{{asset('public/assets/js/charts/01.js')}}"></script>
+      <script src="{{asset('public/assets/js/charts/02.js')}}"></script>
       <!-- slider JavaScript -->
-      <script src="assets/js/slider.js"></script>
+      <script src="{{asset('public/assets/js/slider.js')}}"></script>
       <!-- app JavaScript -->
-      <script src="assets/js/app.js"></script>  
+      <script src="{{asset('public/assets/js/app.js')}}"></script> 
+
+       <script src="{{asset('public/assets/cute-alert.js')}}"></script>
+    <script type="text/javascript">
+      
+$(document).ready(function() {
+  @if(Session::has('message'))
+  cuteAlert({
+  type: "success",
+  title: "Success",
+  message: "Record has been inserted successfully",
+  buttonText: "Okay"
+});
+  @elseif(Session::has('failure'))
+  cuteAlert({
+  type: "error",
+  title: "Authentication failed ",
+  message: "Email is already exists. Please enter another email",
+  buttonText: "Okay"
+  });
+  @else
+ 
+@endif
+
+});
+    </script>
+ 
    </body>
 </html>
 
-
-<!-- <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Register') }}</div>
-
-                <div class="card-body">
-                    <form method="POST" action="{{ route('register') }}">
-                        @csrf
-
-                        <div class="form-group row">
-                            <label for="name" class="col-md-4 col-form-label text-md-right">{{ __('Name') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" required autocomplete="name" autofocus>
-
-                                @error('name')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="email" class="col-md-4 col-form-label text-md-right">{{ __('E-Mail Address') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
-
-                                @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="password" class="col-md-4 col-form-label text-md-right">{{ __('Password') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
-
-                                @error('password')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="password-confirm" class="col-md-4 col-form-label text-md-right">{{ __('Confirm Password') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
-                            </div>
-                        </div>
-
-                        <div class="form-group row mb-0">
-                            <div class="col-md-6 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Register') }}
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->
 @endsection

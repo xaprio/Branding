@@ -40,6 +40,22 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'api' => [
+            'driver' => 'token',
+            'provider' => 'users',
+            'hash' => false,
+        ],
+
+        'advertiser' => [
+            'driver' => 'session',
+            'provider' => 'advertisers',
+        ],
+
+         'admin' => [
+            'driver' => 'session',
+            'provider' => 'admins',
+        ],
+
     ],
 
     /*
@@ -63,6 +79,16 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
+        ],
+
+        'advertisers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Advertiser\TrackAdvertiser::class,
+        ],
+
+         'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin\Admin::class,
         ],
 
         // 'users' => [
@@ -93,6 +119,19 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+        'advertisers' => [
+            'provider' => 'advertisers',
+            'table' => 'advertiser_password_resets',
+            'expire' => 60,
+        ],
+
+         'admins' => [
+            'provider' => 'admins',
+            'table' => 'admin_password_resets',
+            'expire' => 60,
+        ],
+
     ],
 
     /*

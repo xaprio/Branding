@@ -3,7 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
-
+use Route; 
 class Authenticate extends Middleware
 {
     /**
@@ -12,9 +12,15 @@ class Authenticate extends Middleware
      * @param  \Illuminate\Http\Request  $request
      * @return string|null
      */
-    protected function redirectTo($request)
+     protected function redirectTo($request)
     {
         if (! $request->expectsJson()) {
+            if(\Request::is('advertiser') || \Request::is('advertiser/*')){
+                return route('advertiser.login');
+            }
+            if(\Request::is('backend') || \Request::is('backend/*')){
+                return route('admin.login');
+            }
             return route('login');
         }
     }

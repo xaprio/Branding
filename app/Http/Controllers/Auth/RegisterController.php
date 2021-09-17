@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
-use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-
+use Session;
+use Redirect;
+use AdvertiserHelper;
 class RegisterController extends Controller
 {
     /*
@@ -23,13 +24,14 @@ class RegisterController extends Controller
     */
 
     use RegistersUsers;
+    protected $resposne;
 
     /**
      * Where to redirect users after registration.
      *
      * @var string
      */
-    protected $redirectTo = RouteServiceProvider::HOME;
+    protected $redirectTo = '/advertiser/login';
 
     /**
      * Create a new controller instance.
@@ -38,7 +40,10 @@ class RegisterController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest');
+        $this->middleware('guest:advertiser');
+        $this->response=[];
+        $this->response['response']=1;
+        $this->response['success']=0;
     }
 
     /**
@@ -49,11 +54,22 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
+       //echo '<pre>';print_r($data); die;
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'company' => 'required|string',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+                    'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
+
+            'password_confirmation'  =>      'required|same:password',
         ]);
+    }
+
+
+    public function showRegistrationForm()
+    {
+       
+        return view('auth.register');
     }
 
     /**
@@ -62,12 +78,83 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \App\Models\User
      */
-    protected function create(array $data)
+    // protected function create(array $data)
+    // {
+        
+    //     Session::put('advertiser', $data);
+    //     // return User::create([
+    //     //     'name' => $data['name'],
+    //     //     'email' => $data['email'],
+    //     //     'password' => Hash::make($data['password']),
+    //     // ]);
+    // }
+
+
+    public function register(Request $request)
     {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
+
+        $this->validator($request->all())->validate();
+         if (!filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+          $this->response['errors']=['email'=>"Invalid Email id!"];
+            return response()->json($this->response,422);
+        }
+       
+         print_r($request->all()); die;
+       
+         try{
+           $response =  AdvertiserHelper::pushNewAdvertiser($advertiser);  /* Send data to advertiser helper for create sign-up  */ 
+           if(isset($response) && $response['status'] == 0){
+            
+            $this->response['message']= $response['data'];
+            return $this->response;
+           }else{
+           
+            $this->response['success']=1;
+           } 
+         }catch(Exception $e){
+            report($e);
+            
+         } 
+         
+         /* Send mail to advertiser and admin for create sign-up  */
+         $admin_emails=Config::get('custom_setting.ADMIN_EMAILS');
+        if(!empty($user->trackier_id)){
+           $mail=Mail::to($user->email);
+           if(isset($admin_emails) && is_array($admin_emails) && count($admin_emails)){
+            $mail->bcc($admin_emails);
+           }
+           $mail->send(new ApprovedWelcomeMail($user));
+           $this->response['message']="Your account created successfully. You will be redirected to login page soon.";
+        }else{
+           $mail=Mail::to($user->email);
+           if(isset($admin_emails) && is_array($admin_emails) && count($admin_emails)){
+                $mail->bcc($admin_emails);
+           }
+           $mail->send(new PendingWelcomeMail($user));
+            
+           try{
+             Mail::to($admin_emails)->send(new AdvertiserActivity(4,['advertiser'=>$user]));
+
+           }catch(\Exception $e){
+            report($e);
+           } 
+           
+           $this->response['message']="Your account created successfully. You will be notfied via email once your account is activated.";
+        }
+        return response()->json($this->response);
+
     }
+
+    /**
+     * Get the guard to be used during registration.
+     *
+     * @return \Illuminate\Contracts\Auth\StatefulGuard
+     */
+    protected function guard()
+    {
+        return Auth::guard('advertiser');
+    }
+
+
+
 }
